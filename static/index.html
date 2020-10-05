@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>Photobooth</title>
+    <style>
+        .demo-frame header,
+        .demo-frame h1,
+        .demo-frame .demo-conversion {
+            display: none;
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: rgb(255, 255, 255);
+            background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(177, 228, 227, 1) 100%);
+        }
+
+        .demo-wrapper {
+            margin: 0 auto;
+            width: 50%;
+            padding-top: 100px;
+        }
+
+        .bsap {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+
+        .countdown {
+            display: block;
+            width: 66vmin;
+            height: 66vmin;
+            position: relative;
+            display: -webkit-box;
+            display: flex;
+            -webkit-box-pack: center;
+            justify-content: center;
+            -webkit-box-align: center;
+            align-items: center;
+            font-family: "Oswald", sans-serif;
+            font-weight: 400;
+            font-size: 25vmin;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            -webkit-transition: width, height, border-radius, font-size;
+            transition: width, height, border-radius, font-size;
+            -webkit-transition-duration: 0.2s;
+            transition-duration: 0.2s;
+        }
+
+        .countdown--wide {
+            width: 100%;
+            height: 100%;
+            font-size: 50vmin;
+            border-radius: 0;
+        }
+    </style>
+    <style>
+        video {
+            border: 1px solid #ccc;
+            display: block;
+            margin: 0 0 20px 0;
+        }
+
+        #canvas {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            display: block;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+</head>
+
+<body>
+    <div class="demo-wrapper">
+
+        <div id="promoNode"></div>
+        <div class="countdown countdown--wide" id="countdown"></div>
+        <div id="stickers"></div>
+        <div style="display: none">
+            <canvas id="canvas" width="640" height="480"></canvas>
+            <video id="video" width="640" height="480" autoplay></video>
+        </div>
+
+        <script>
+            // Put event listeners into place
+            window.addEventListener("DOMContentLoaded", function() {
+                // Grab elements, create settings, etc.
+                var canvas = document.getElementById('canvas');
+                var context = canvas.getContext('2d');
+                var video = document.getElementById('video');
+                var mediaConfig = {
+                    video: true
+                };
+                var errBack = function(e) {
+                    console.log('An error has occurred!', e)
+                };
+
+                // Put video listeners into place
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia(mediaConfig).then(function(stream) {
+                        //video.src = window.URL.createObjectURL(stream);
+                        video.srcObject = stream;
+                        video.play();
+                    });
+                }
+
+                /* Legacy code below! */
+                else if (navigator.getUserMedia) { // Standard
+                    navigator.getUserMedia(mediaConfig, function(stream) {
+                        video.src = stream;
+                        video.play();
+                    }, errBack);
+                } else if (navigator.webkitGetUserMedia) { // WebKit-prefixed
+                    navigator.webkitGetUserMedia(mediaConfig, function(stream) {
+                        video.src = window.webkitURL.createObjectURL(stream);
+                        video.play();
+                    }, errBack);
+                } else if (navigator.mozGetUserMedia) { // Mozilla-prefixed
+                    navigator.mozGetUserMedia(mediaConfig, function(stream) {
+                        video.src = window.URL.createObjectURL(stream);
+                        video.play();
+                    }, errBack);
+                }
+
+                function handleError(err) {
+                    alert(err.message)
+                }
+
+                var countdown = 5
+                // Update the count down every 1 second
+                var x = setInterval(function() {
+                    countdown = countdown - 1
+
+                    // Display the result in the element with id="demo"
+                    document.getElementById("countdown").innerHTML = countdown
+
+                    // If the count down is finished, write some text
+                    if (countdown <= 0) {
+                        clearInterval(x);
+                        document.getElementById('countdown').remove();
+                        snap()
+                    }
+                }, 1000);
+
+                function uploadImage(path, blob, cb) {
+                    const formData = new FormData();
+                    formData.append('image.png', blob, 'image.png');
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', path, true);
+                    xhr.send(formData);
+                    xhr.addEventListener('error', function(e) {
+                        alert("Server is down")
+                    });
+                    xhr.addEventListener("load", function() {
+                        if (xhr.status < 400) {
+                            cb()
+                        } else if (xhr.status == 500) {
+                            handleError(new Error(xhr.responseText))
+                        } else {
+                            alert(new Error("xhruest failed: " + xhr.statusText));
+                        }
+                    });
+                }
+
+                // Trigger photo take
+                function snap() {
+                    context.drawImage(video, 0, 0, 640, 480);
+                    //let dataURL = canvas.toDataURL("image/png")
+                    //let image = dataURL.replace(/^data:image\/(png|jpg);base64,/, "")
+                    canvas.toBlob(function(blob) {
+                        uploadImage('/upload', blob, function() {
+                            var $bright_green = '#78BE20'; // guidelines
+                            var $mid_green = '#32903E'; // guidelines
+                            var $green = '#007A33'; // guidelines
+                            var $yellow = '#fdda24'; // guidelines
+                            var $gold = '#daaa00'; // guidelines
+                            var $light_blue = '#b1e4e3'; // guidelines
+                            var $bright_blue = '#2dccd3'; // guidelines
+                            var $blue = '#005f83'; // guidelines
+                            var $dark_blue = '#003b49'; // guidelines
+                            var $orange = '#e87722'; // guidelines
+                            var $brown = '#7d622e'; // guidelines
+                            var $gray = '#63666a'; // guidelines
+                            var $light_gray = '#b2b4b2'; // guidelines
+                            var $lighter_gray = '#DCE3E4'; // guidelines
+
+                            var show = stickerbomb({
+                                target: '#stickers',
+                                backdrops: ['images/image.png'],
+
+                                styles: {
+                                    applicationBG: '#002933',
+                                    leftBarBG: $dark_blue,
+                                    leftBarButtons: $dark_blue,
+                                    leftBarButtonsHover: '#005F83',
+                                    leftBarButtonsActive: $bright_green,
+                                    leftBarIcons: '#fff',
+                                    rightBarBG: $dark_blue,
+                                    rightBarButtonsHover: '#005F83',
+                                    rightBarButtons: $dark_blue,
+                                    rightBarIcons: '#fff',
+                                    tooltipBG: '#FDDA24',
+                                    drawerBarBG: $dark_blue,
+                                    drawerBarButtons: $dark_blue,
+                                    drawerBarButtonsHover: '#005F83',
+                                    drawerBarButtonsActive: '#002933',
+                                    drawerBarText: '#fff',
+                                    drawerBG: '#002933',
+                                    font: 'Orgon Slab'
+                                },
+                                guideColors: ['#77BD20'],
+
+                                stickers: {
+                                    'Stickers': [{
+                                            name: 'Mustache',
+                                            src: 'images/mustache.png',
+                                            widthPercentage: 15
+                                        },
+                                        {
+                                            name: 'Binocle',
+                                            src: 'images/binocle.png',
+                                            widthPercentage: 15
+                                        },
+                                        {
+                                            name: 'Glasses',
+                                            src: 'images/glasses.png',
+                                            widthPercentage: 15
+                                        },
+                                        {
+                                            name: 'Glasses',
+                                            src: 'images/glasses2.png',
+                                            widthPercentage: 15
+                                        },
+                                        {
+                                            name: 'Hat',
+                                            src: 'images/hat.png',
+                                            widthPercentage: 15
+                                        },
+                                        {
+                                            name: 'Hat',
+                                            src: 'images/hat2.png',
+                                            widthPercentage: 15
+                                        },
+                                        {
+                                            name: 'Mustache',
+                                            src: 'images/mustache.png',
+                                            widthPercentage: 15
+                                        },
+                                        {
+                                            name: 'Mustache',
+                                            src: 'images/mustache2.png',
+                                            widthPercentage: 15
+                                        },
+                                        {
+                                            name: 'Bow tie',
+                                            src: 'images/pap.png',
+                                            widthPercentage: 15
+                                        },
+                                        {
+                                            name: 'Pipe',
+                                            src: 'images/pipe.png',
+                                            widthPercentage: 15
+                                        },
+                                        {
+                                            name: 'Smile',
+                                            src: 'images/smile.png',
+                                            widthPercentage: 15
+                                        }
+
+                                    ]
+                                },
+                                hideActions: ["share", "facebook", "twitter", 'print', 'save'],
+                                actions: {
+                                    actionName: {
+                                        icon: 'fa-floppy-o',
+                                        tooltip: 'Save',
+                                        action: function(sb_instance) {
+                                            sb_instance.context.save();
+                                            s3Upload(sb_instance.canvas)
+                                        }
+                                    }
+                                }
+                            });
+                            document.getElementById('video').remove();
+                            document.getElementById('canvas').remove();
+                        })
+                    })
+                };
+
+                function s3Upload(canvas) {
+                    //let dataURL = canvas.toDataURL("image/png")
+                    //let image = dataURL.replace(/^data:image\/(png|jpg);base64,/, "")
+                    canvas.toBlob(function(blob) {
+                        uploadImage('/s3', blob, function() {})
+                    })
+                }
+
+
+            }, false);
+        </script>
+        <script type="text/javascript" src="stickerbomb.js"></script>
+    </div>
+    </main>
+</body>
+</html>
