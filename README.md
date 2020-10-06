@@ -4,7 +4,7 @@ To be executed on DemoCCC: https://external-csp-access.cloud.worldline.com/aws/r
 
 
 ```
-curl -O https://gitlab.kazan.priv.atos.fr/ccc/sources/photobooth/uploads/09be7c9e06b0470dfdf84dfe4ea7919c/photobooth.tar.gz
+curl -O https://github.com/Filirom1/photobooth/releases/download/v0.0.1/photobooth.tar.gz
 tar xvzf photobooth.tar.gz
 cd photobooth
 export AWS_DEFAULT_REGION=eu-west-3
