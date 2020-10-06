@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+  "github.com/rocketlaunchr/https-go"
 	"io"
 	"log"
 	"net/http"
@@ -113,8 +114,13 @@ func main() {
 
 	http.HandleFunc("/", hello)
 
-	fmt.Printf("Listening on 8080\n")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	fmt.Printf("Listening on 8443\n")
+  httpServer, err := https.Server("8443", https.GenerateOptions{Host: "photobooth.app"})
+	if err != nil {
+		log.Fatal(err)
+	}
+  err = httpServer.ListenAndServeTLS("", "")
+	if err != nil {
 		log.Fatal(err)
 	}
 }
