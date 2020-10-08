@@ -1,2 +1,7 @@
 static/images/image.png
 go.*
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfstate.d
+photobooth
+.terraform

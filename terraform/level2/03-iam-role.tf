@@ -1,5 +1,5 @@
 resource "aws_iam_role" "allow_writing_to_my_bucket" {
-  name = "AllowWritingToMyBucket"
+  name = "AllowWritingToMyBucket-${var.das}"
 
   assume_role_policy = <<-EOF
   {
@@ -18,8 +18,13 @@ resource "aws_iam_role" "allow_writing_to_my_bucket" {
   EOF
 }
 
+resource "aws_iam_instance_profile" "allow_writing_to_my_bucket" {
+  name = aws_iam_role.allow_writing_to_my_bucket.name
+  role = aws_iam_role.allow_writing_to_my_bucket.name
+}
+
 resource "aws_iam_role_policy" "allow_writing_to_my_bucket" {
-  name = "AllowWritingToMyBucket"
+  name = "AllowWritingToMyBucket-${var.das}"
   role = aws_iam_role.allow_writing_to_my_bucket.id
 
   policy = <<-EOF
