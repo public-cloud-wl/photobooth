@@ -1,0 +1,11 @@
+[Unit]
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/photobooth
+ExecStart=/usr/bin/photobooth
+EnvironmentFile=-/etc/photobooth
+
+[Install]
+WantedBy=multi-user.target

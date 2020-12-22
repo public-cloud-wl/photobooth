@@ -1,0 +1,10 @@
+include:
+  - project: 'kazan-community/gitlab-ci-templates'
+    ref: terraform
+    file: '/flavors/terraform/gitlab-ci.terraform.flavor.yml'
+
+variables:
+  ENABLE_ENV_DEV:     "true"
+  ENABLE_ENV_PROD:    "true"
+  TERRAFORM_AUTH_AWS: "true"
+  TERRAFORM_AUTH_AWS_ROLE: "SysAdmin@FRA-DEMO-CCC-NOPROD-TRAINING"
