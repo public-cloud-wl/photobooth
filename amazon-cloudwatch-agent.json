@@ -1,0 +1,50 @@
+{
+        "agent": {
+                "metrics_collection_interval": 60,
+                "run_as_user": "root"
+        },
+        "metrics": {
+                "append_dimensions": {
+                        "InstanceId": "${aws:InstanceId}"
+                },
+                "metrics_collected": {
+                        "disk": {
+                                "measurement": [
+                                        "used_percent",
+                                        "inodes_free",
+                                        "inodes_total"
+                                ],
+                                "metrics_collection_interval": 60,
+                                "resources": [
+                                        "*"
+                                ],
+                                "drop_device": true
+                        },
+                        "mem": {
+                                "measurement": [
+                                        "mem_used_percent"
+                                ],
+                                "metrics_collection_interval": 60
+                        },
+                        "swap": {
+                                "measurement": [
+                                        "swap_used_percent"
+                                ],
+                                "metrics_collection_interval": 60
+                        }
+                }
+        },
+        "logs": {
+                "logs_collected": {
+                        "files": {
+                                "collect_list": [
+                                        {
+                                                "file_path": "/access_log_*",
+                                                "log_group_name": "access_log",
+                                                "log_stream_name": "{instance_id}"
+                                        }
+                                ]
+                        }
+                }
+        }
+}
