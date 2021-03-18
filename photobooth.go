@@ -105,7 +105,6 @@ func AddFileToS3(fileDir string) error {
 		ContentLength:        aws.Int64(size),
 		ContentType:          aws.String(http.DetectContentType(buffer)),
 		ContentDisposition:   aws.String("attachment"),
-		ServerSideEncryption: aws.String("AES256"),
 	})
 	return err
 }
