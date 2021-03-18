@@ -1,14 +1,14 @@
 package main
 
 import (
-	"errors"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-  "github.com/rocketlaunchr/https-go"
+	"github.com/rocketlaunchr/https-go"
 	"io"
 	"log"
 	"net/http"
@@ -40,14 +40,14 @@ func hello(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-    // copy example
-    f, err := os.OpenFile("static/images/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
-    if err != nil {
-      JSONError(w, err)
-      return
-    }
-    defer f.Close()
-    io.Copy(f, file)
+		// copy example
+		f, err := os.OpenFile("static/images/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+		if err != nil {
+			JSONError(w, err)
+			return
+		}
+		defer f.Close()
+		io.Copy(f, file)
 
 		if r.URL.Path == "/s3" {
 			err = AddFileToS3("static/images/image.png")
@@ -98,28 +98,46 @@ func AddFileToS3(fileDir string) error {
 	// Config settings: this is where you choose the bucket, filename, content-type etc.
 	// of the file you're uploading.
 	_, err = s3.New(s).PutObject(&s3.PutObjectInput{
-		Bucket:               aws.String(bucket),
-		Key:                  aws.String("/image.png"),
-		ACL:                  aws.String("private"),
-		Body:                 bytes.NewReader(buffer),
-		ContentLength:        aws.Int64(size),
-		ContentType:          aws.String(http.DetectContentType(buffer)),
-		ContentDisposition:   aws.String("attachment"),
+		Bucket:             aws.String(bucket),
+		Key:                aws.String("/image.png"),
+		ACL:                aws.String("private"),
+		Body:               bytes.NewReader(buffer),
+		ContentLength:      aws.Int64(size),
+		ContentType:        aws.String(http.DetectContentType(buffer)),
+		ContentDisposition: aws.String("attachment"),
 	})
 	return err
 }
 
 func main() {
+	port, exists := os.LookupEnv("PORT")
+	if !exists {
+		port = "8443"
+	}
+
+	tls := true
+	tls_value, exists := os.LookupEnv("DISABLE_TLS")
+	if exists {
+		fmt.Printf("DISABLE_TLS=%s. Will serve with HTTP Protocol ", tls_value)
+		tls = false
+	}
 
 	http.HandleFunc("/", hello)
 
-	fmt.Printf("Listening on 8443\n")
-  httpServer, err := https.Server("8443", https.GenerateOptions{Host: "photobooth.app"})
-	if err != nil {
-		log.Fatal(err)
-	}
-  err = httpServer.ListenAndServeTLS("", "")
-	if err != nil {
-		log.Fatal(err)
+	fmt.Printf("Listening on %s\n", port)
+	if tls {
+		httpsServer, err := https.Server(port, https.GenerateOptions{Host: "photobooth.app"})
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = httpsServer.ListenAndServeTLS("", "")
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		err := http.ListenAndServe(":"+port, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
