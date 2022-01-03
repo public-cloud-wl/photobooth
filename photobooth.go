@@ -110,9 +110,9 @@ func AddFileToS3(fileDir string) error {
 }
 
 func main() {
-	port, exists := os.LookupEnv("PORT")
+	port, exists := os.LookupEnv("PHOTOBOOTH_PORT")
 	if !exists {
-		port = "8443"
+		port = "443"
 	}
 
 	tls := true
