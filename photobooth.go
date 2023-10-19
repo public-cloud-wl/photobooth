@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"cloud.google.com/go/storage"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -49,13 +51,26 @@ func hello(w http.ResponseWriter, r *http.Request) {
 		defer f.Close()
 		io.Copy(f, file)
 
-		if r.URL.Path == "/s3" {
-			err = AddFileToS3("static/images/image.png")
-			if err != nil {
-				JSONError(w, err)
-				return
+		if r.URL.Path == "/bucket" {
+			_, aws := os.LookupEnv("AWS_BUCKET")
+			if aws {
+				err = AddFileToS3("static/images/image.png")
+				if err != nil {
+					JSONError(w, err)
+					return
+				}
+			}
+
+			_, gcp := os.LookupEnv("GCP_BUCKET")
+			if gcp {
+				err = AddFileToGCS("static/images/image.png")
+				if err != nil {
+					JSONError(w, err)
+					return
+				}
 			}
 		}
+
 	default:
 		fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
 	}
@@ -107,6 +122,51 @@ func AddFileToS3(fileDir string) error {
 		ContentDisposition: aws.String("attachment"),
 	})
 	return err
+}
+
+// AddFileToGCS will upload a single file to GCS, it will require a pre-built gcp session
+// and will set file info like content type and encryption on the uploaded file.
+func AddFileToGCS(fileDir string) error {
+	ctx := context.Background()
+
+	bucketName, exists := os.LookupEnv("GCP_BUCKET")
+	if !exists {
+		return errors.New("Missing environment GCP_BUCKET")
+	}
+
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		return fmt.Errorf("storage.NewClient: %v", err)
+	}
+	defer client.Close()
+
+	bucket := client.Bucket(bucketName)
+
+	file, err := os.Open(fileDir)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Get file size and read the file content into a buffer
+	fileInfo, _ := file.Stat()
+	var size int64 = fileInfo.Size()
+	buffer := make([]byte, size)
+	file.Read(buffer)
+
+	w := bucket.Object("image.png").NewWriter(ctx)
+	w.ContentType = http.DetectContentType(buffer)
+	w.ContentEncoding = "gzip"
+	_, err = io.Copy(w, bytes.NewReader(buffer))
+
+	if err != nil {
+		return fmt.Errorf("io.Copy: %v", err)
+	}
+	if err := w.Close(); err != nil {
+		return fmt.Errorf("Writer.Close: %v", err)
+	}
+
+	return nil
 }
 
 func main() {
