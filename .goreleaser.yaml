@@ -1,0 +1,39 @@
+# .goreleaser.yaml
+builds:
+  - id: photobooth
+    main: ./photobooth.go # Replace with the path to your main package if different
+    binary: photobooth
+    goos:
+      - linux
+    goarch:
+      - amd64 # Add other architectures if needed
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+
+# nFPM configuration to package the software
+nfpms:
+  - id: photobooth_rpm
+    package_name: photobooth
+    vendor: Worldline
+    homepage: https://github.com/public-cloud-wl/photobooth
+    maintainer: Romain Philibert <romain.philibert@worldline.com>
+    description: |-
+      The photobooth software.
+      Takes awesome pictures and lets you share them.
+    license: MIT
+    formats:
+      - rpm
+    contents:
+      - src: ./photobooth.service
+        dst: /etc/systemd/system/photobooth.service
+      - src: ./static/
+        dst: /var/www/photobooth/static/
+        type: "dir"
+    scripts:
+      postinstall: ./after-install
+    builds:
+      - photobooth
+
+# Other GoReleaser configurations (e.g., snapshot, changelog)
