@@ -14,8 +14,8 @@ builds:
     ldflags:
       - -s -w
     hooks:
-      pre: sed -i 's/{{\\.Version}}/'"$(git describe --tags)"'/g' static/index.html
-      
+      pre: sed -i 's/{{Version}}/'"$(git describe --tags)"'/g' static/index.html
+
 # nFPM configuration to package the software
 nfpms:
   - id: photobooth_rpm
