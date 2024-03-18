@@ -13,7 +13,9 @@ builds:
       - -trimpath
     ldflags:
       - -s -w
-
+    hooks:
+      pre: sed -i 's/{{\\.Version}}/'"$(git describe --tags)"'/g' static/index.html
+      
 # nFPM configuration to package the software
 nfpms:
   - id: photobooth_rpm
@@ -32,7 +34,6 @@ nfpms:
         dst: /etc/systemd/system/photobooth.service
       - src: ./static/
         dst: /var/www/photobooth/static/
-        type: "dir"
     scripts:
       postinstall: ./after-install
     builds:
