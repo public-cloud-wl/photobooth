@@ -2,7 +2,7 @@
 builds:
   - id: photobooth
     env:
-      - CGO_ENABLED=1
+      - CGO_ENABLED=0
     main: ./photobooth.go
     binary: photobooth
     goos:
