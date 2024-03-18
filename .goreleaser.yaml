@@ -1,7 +1,9 @@
 # .goreleaser.yaml
 builds:
   - id: photobooth
-    main: ./photobooth.go # Replace with the path to your main package if different
+    env:
+      - CGO_ENABLED=1
+    main: ./photobooth.go
     binary: photobooth
     goos:
       - linux
