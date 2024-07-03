@@ -15,6 +15,7 @@ builds:
       - -s -w
     hooks:
       pre: sed -i "s/VERSION/{{.Version}}/g" static/index.html
+    file_name_template: '{{ .PackageName }}_{{ .Version }}-1.x86_64'
 
 # nFPM configuration to package the software
 nfpms:
@@ -34,6 +35,8 @@ nfpms:
         dst: /etc/systemd/system/photobooth.service
       - src: ./static/
         dst: /var/www/photobooth/static/
+      - src: ./static/images/
+        dst: /var/www/photobooth/static/images/
     scripts:
       postinstall: ./after-install
     builds:
