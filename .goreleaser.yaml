@@ -41,6 +41,6 @@ nfpms:
       postinstall: ./after-install
     builds:
       - photobooth
-    file_name_template: '{{ .PackageName }}_{{ .Version }}-1.x86_64'
+    file_name_template: '{{ .PackageName }}-{{ .Version }}-1.x86_64'
 
 # Other GoReleaser configurations (e.g., snapshot, changelog)
