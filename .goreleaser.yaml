@@ -1,4 +1,5 @@
 # .goreleaser.yaml
+version: 2
 builds:
   - id: photobooth
     env:
@@ -15,7 +16,6 @@ builds:
       - -s -w
     hooks:
       pre: sed -i "s/VERSION/{{.Version}}/g" static/index.html
-    file_name_template: '{{ .PackageName }}_{{ .Version }}-1.x86_64'
 
 # nFPM configuration to package the software
 nfpms:
@@ -41,5 +41,6 @@ nfpms:
       postinstall: ./after-install
     builds:
       - photobooth
+    file_name_template: '{{ .PackageName }}_{{ .Version }}-1.x86_64'
 
 # Other GoReleaser configurations (e.g., snapshot, changelog)
