@@ -23,9 +23,9 @@ jobs:
           go-version: '1.20' # Specify your Go version here
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
+        uses: goreleaser/goreleaser-action@v6
         with:
-          version: latest
-          args: release
+          distribution: goreleaser # or 'goreleaser-pro'
+          version: "~> v2" # or 'latest', 'nightly', semver
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
