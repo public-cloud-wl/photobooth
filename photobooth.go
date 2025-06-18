@@ -156,7 +156,7 @@ func AddFileToGCS(fileDir string) error {
 
 	w := bucket.Object("image.png").NewWriter(ctx)
 	w.ContentType = http.DetectContentType(buffer)
-	w.ContentEncoding = "gzip"
+	w.ContentEncoding = "image/png"
 	_, err = io.Copy(w, bytes.NewReader(buffer))
 
 	if err != nil {
