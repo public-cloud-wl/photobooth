@@ -17,6 +17,9 @@ builds:
     hooks:
       pre: sed -i "s/VERSION/{{.Version}}/g" static/index.html
 
+snapshot:
+  version_template: '{{ .Version }}-SNAPSHOT-{{ .ShortCommit }}'
+
 # nFPM configuration to package the software
 nfpms:
   - id: photobooth_rpm
@@ -39,8 +42,13 @@ nfpms:
         dst: /var/www/photobooth/static/images/
     scripts:
       postinstall: ./after-install
-    builds:
+    ids:
       - photobooth
-    file_name_template: '{{ .PackageName }}-{{ .Version }}-1.x86_64'
+    file_name_template: >-
+      {{- if .IsSnapshot -}}
+        {{ .PackageName }}-{{ .Version }}-snapshot.x86_64
+      {{- else -}}
+        {{ .PackageName }}-{{ .Version }}-1.x86_64
+      {{- end -}}
 
 # Other GoReleaser configurations (e.g., snapshot, changelog)
