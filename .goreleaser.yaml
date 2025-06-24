@@ -26,7 +26,7 @@ nfpms:
     package_name: photobooth
     vendor: Worldline
     homepage: https://github.com/public-cloud-wl/photobooth
-    maintainer: Romain Philibert <romain.philibert@worldline.com>
+    maintainer: Romain Philibert <filirom1@gmail.com>
     description: |-
       The photobooth software.
       Takes awesome pictures and lets you share them.
